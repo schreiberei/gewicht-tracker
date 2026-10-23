@@ -3,6 +3,7 @@ import { average, linearTrend } from './statistics.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const DAY_MS = 86400000;
+const VIEW_WIDTH = 760;
 
 function dateFmt(value) {
   return new Date(value).toLocaleDateString('de-AT', {
@@ -33,10 +34,21 @@ function addSvgElement(svg, tag, attributes = {}) {
 }
 
 /*
- * Berechnet für jeden Messzeitpunkt den Durchschnitt aller Messungen
- * im Zeitraum von sieben Tagen bis einschließlich dieses Zeitpunkts.
- * Ein Durchschnittspunkt erfordert mindestens zwei Messungen.
+ * Bestimmt die logische Höhe passend zum sichtbaren Container.
+ * Dadurch bleibt die SVG-Skalierung proportional, ohne große
+ * ungenutzte Bereiche ober- und unterhalb des Diagramms.
  */
+function getChartDimensions(svg) {
+  const rect = svg.getBoundingClientRect();
+  const width = rect.width || VIEW_WIDTH;
+  const height = rect.height || 250;
+
+  return {
+    W: VIEW_WIDTH,
+    H: VIEW_WIDTH * height / width
+  };
+}
+
 function rollingSevenDayAverage(records) {
   const windowMs = 7 * DAY_MS;
   const result = [];
@@ -63,21 +75,28 @@ function rollingSevenDayAverage(records) {
   return result;
 }
 
+function renderEmpty(svg, message, H) {
+  addSvgElement(svg, 'text', {
+    x: VIEW_WIDTH / 2,
+    y: H / 2,
+    'text-anchor': 'middle',
+    'dominant-baseline': 'middle',
+    fill: 'currentColor',
+    'font-size': 15
+  }).textContent = message;
+}
+
 export function renderChart(records, range, axisStepValue) {
   const svg = document.getElementById('chart');
   svg.innerHTML = '';
 
+  const { W, H } = getChartDimensions(svg);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
   const emptyMessage = 'Noch keine Messwerte für diesen Zeitraum';
 
   if (!range) {
-    addSvgElement(svg, 'text', {
-      x: 380,
-      y: 125,
-      'text-anchor': 'middle',
-      fill: 'currentColor',
-      'font-size': 15
-    }).textContent = emptyMessage;
-
+    renderEmpty(svg, emptyMessage, H);
     document.getElementById('startLabel').textContent = '—';
     document.getElementById('endLabel').textContent = '—';
     return;
@@ -87,24 +106,16 @@ export function renderChart(records, range, axisStepValue) {
   document.getElementById('endLabel').textContent = dateFmt(range.endDay);
 
   if (!records.length) {
-    addSvgElement(svg, 'text', {
-      x: 380,
-      y: 125,
-      'text-anchor': 'middle',
-      fill: 'currentColor',
-      'font-size': 15
-    }).textContent = emptyMessage;
-
+    renderEmpty(svg, emptyMessage, H);
     return;
   }
 
-  const W = 760;
-  const H = 250;
   const L = 38;
-  const R = 42;
-  const T = 12;
-  const B = 26;
+  const R = 48;
+  const T = 18;
+  const B = 34;
 
+  const plotHeight = H - T - B;
   const times = records.map(record => new Date(record.date).getTime());
   const dataMin = Math.min(...records.map(record => record.weight));
   const dataMax = Math.max(...records.map(record => record.weight));
@@ -122,17 +133,20 @@ export function renderChart(records, range, axisStepValue) {
   const rangeEnd = range.end.getTime();
 
   const x = time =>
-    L + (time - rangeStart) / Math.max(1, rangeEnd - rangeStart) * (W - L - R);
+    L + (time - rangeStart) /
+      Math.max(1, rangeEnd - rangeStart) * (W - L - R);
 
   const y = value =>
-    T + (max - value) / (max - min) * (H - T - B);
+    T + (max - value) / (max - min) * plotHeight;
 
   for (let value = min; value <= max + step * 0.001; value += step) {
+    const py = y(value);
+
     addSvgElement(svg, 'line', {
       x1: L,
-      y1: y(value),
+      y1: py,
       x2: W - R,
-      y2: y(value),
+      y2: py,
       stroke: 'light-dark(#d8d8de,#4a4a50)',
       'stroke-width': 1,
       'stroke-dasharray': '3 4'
@@ -140,13 +154,12 @@ export function renderChart(records, range, axisStepValue) {
 
     addSvgElement(svg, 'text', {
       x: W - R + 7,
-      y: y(value) + 4,
+      y: py + 4,
       fill: 'light-dark(#777780,#a1a1aa)',
       'font-size': 11
     }).textContent = fmt(value);
   }
 
-  // Einzelmessungen: dezente Punkte, ohne verbindende Zickzacklinie.
   const pointRadius = records.length > 80 ? 1.8 : 3;
 
   records.forEach(record => {
@@ -161,7 +174,6 @@ export function renderChart(records, range, axisStepValue) {
     });
   });
 
-  // Gleitender 7-Tage-Durchschnitt.
   const rolling = rollingSevenDayAverage(records);
 
   if (rolling.length >= 2) {
@@ -179,12 +191,10 @@ export function renderChart(records, range, axisStepValue) {
     });
   }
 
-  /*
-   * Die lineare Regression bleibt verfügbar und wird weiterhin für
-   * die Kennzahlen verwendet. Sie wird bewusst nicht als zweite Linie
-   * ins Diagramm gezeichnet, damit die Darstellung eindeutig bleibt.
-   */
   const trend = linearTrend(records);
-  return { rollingAveragePoints: rolling.length, hasLinearTrend: Boolean(trend) };
-}
 
+  return {
+    rollingAveragePoints: rolling.length,
+    hasLinearTrend: Boolean(trend)
+  };
+}
