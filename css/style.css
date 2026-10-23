@@ -96,18 +96,207 @@ form .fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px
 .pill{display:inline-block;border-radius:99px;background:light-dark(#ececf0,#343439);padding:6px 10px;font-size:12px;color:light-dark(#55555e,#c3c3cb)}
 .footer{margin:20px 2px;color:light-dark(#888891,#7e7e87);font-size:12px;line-height:1.5}
 
-@media(max-width:680px){
-  #app{padding:15px}
-  .span7,.span5,.span6{grid-column:span 12}
-  .card{padding:18px}
-  .top{align-items:flex-start;flex-direction:column;gap:15px}
-  .actions{width:100%}
-  .actions .btn{flex:1}
-  .chartwrap{height:230px}
-  form .fields{grid-template-columns:1fr 1fr}
-  form .fields .field:first-child{grid-column:span 2}
-  .two{grid-template-columns:1fr 1fr}
-  .tablewrap{max-height: min(320px, 45vh)}
-  .tablewrap table{font-size:13px}
-  .tablewrap th,.tablewrap td{padding:10px 7px}
+
+@media (max-width: 680px) {
+  #app {
+    padding:
+      max(12px, env(safe-area-inset-top))
+      12px
+      max(20px, env(safe-area-inset-bottom));
+  }
+
+  .shell {
+    width: 100%;
+  }
+
+  .top {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .top h1 {
+    font-size: 30px;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .actions .btn {
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  .grid {
+    gap: 12px;
+  }
+
+  .span7,
+  .span5,
+  .span6 {
+    grid-column: span 12;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .sectionhead {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .sectionhead .btn {
+    min-height: 40px;
+    padding: 8px 11px;
+  }
+
+  .big {
+    font-size: clamp(42px, 12vw, 62px);
+  }
+
+  .statgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stat {
+    min-width: 0;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .stat label {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .stat strong {
+    font-size: clamp(18px, 5vw, 24px);
+    overflow-wrap: anywhere;
+  }
+
+  .periods {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .period {
+    min-width: 0;
+    min-height: 42px;
+    padding: 8px 4px;
+    font-size: 14px;
+  }
+
+  .chartwrap {
+    height: 220px;
+  }
+
+  .chart-options {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 0;
+  }
+
+  .chart-options select {
+    min-height: 40px;
+  }
+
+  .chart-legend {
+    gap: 8px 14px;
+    line-height: 1.5;
+  }
+
+  form .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 8px;
+  }
+
+  form .fields .field:first-child {
+    grid-column: span 2;
+  }
+
+  .field {
+    min-width: 0;
+  }
+
+  input,
+  select {
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  form button[type="submit"] {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .tablewrap {
+    max-height: min(320px, 45vh);
+    overscroll-behavior-x: contain;
+  }
+
+  .tablewrap table {
+    min-width: 420px;
+    font-size: 13px;
+  }
+
+  .tablewrap th,
+  .tablewrap td {
+    padding: 11px 8px;
+  }
+
+  .delete {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .note {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .footer {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  #app {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .card {
+    padding: 13px;
+  }
+
+  .actions .btn {
+    font-size: 13px;
+  }
+
+  .stat {
+    padding: 10px;
+  }
+
+  .period {
+    font-size: 13px;
+  }
 }
