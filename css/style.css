@@ -300,3 +300,68 @@ form .fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px
     font-size: 13px;
   }
 }
+
+
+/* Mobile-Korrekturen für iPhone und eigenständige Web-App */
+@media (max-width: 680px) {
+  /* Mehr Abstand zum oberen Bildschirmrand */
+  #app {
+    padding-top: max(24px, env(safe-area-inset-top));
+  }
+
+  .top {
+    padding-top: 8px;
+  }
+
+  .eyebrow {
+    line-height: 1.5;
+    padding-top: 3px;
+  }
+
+  /* Datums-/Uhrzeitfeld innerhalb der Karte halten */
+  #entryForm .fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  #entryForm .field {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #entryDate {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-left: 7px;
+    padding-right: 4px;
+    font-size: 16px;
+  }
+
+  /* Diagramm höher und dadurch besser lesbar */
+  .chartwrap {
+    height: 300px;
+  }
+
+  .chartwrap svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  #entryForm .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #entryForm .fields .field:first-child {
+    grid-column: auto;
+  }
+
+  #entryDate {
+    padding-left: 6px;
+    padding-right: 2px;
+  }
+}
+
