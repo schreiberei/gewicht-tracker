@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Gewicht — Persönliches Tracking",
+  "short_name": "Gewicht",
+  "description": "Lokaler Gewichtsverlauf mit Diagramm und Statistiken.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#17191f",
+  "theme_color": "#17191f",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

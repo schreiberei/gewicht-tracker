@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#17191f">
+
+  <title>Gewicht — Verlauf v12</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<main id="app">
+<div class="shell">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Persönliches Tracking · lokal · Version 12</div>
+      <h1>Gewicht</h1>
+    </div>
+    <div class="actions">
+      <button class="btn" id="exportBtn">Exportieren</button>
+      <button class="btn" id="importBtn">Importieren</button>
+      <button class="btn" id="clearBtn">Alle Daten löschen</button>
+      <button class="btn primary" id="jumpAdd">＋ Eintragen</button>
+      <input type="file" id="importFile" accept="application/json,.json,.csv" hidden>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card span7">
+      <div class="sectionhead"><span>〰 Trend</span><span class="pill">28-Tage-Blick</span></div>
+      <div class="big" id="trendWeight">—</div>
+      <div class="rate" id="weeklyRate">Noch keine Daten</div>
+      <div class="sub" id="lastEntry">Trage dein erstes Gewicht ein.</div>
+    </section>
+
+    <section class="card span5">
+      <div class="sectionhead"><span>⚑ Ziel</span><button class="btn" id="editGoal">Bearbeiten</button></div>
+      <div class="goalrow"><strong id="goalType">Zielgewicht</strong><strong id="goalValue">—</strong></div>
+      <div class="progress"><span id="progressBar" style="width:0%"></span></div>
+      <div class="muted" id="remaining">Lege ein Zielgewicht fest.</div>
+      <div class="goaldate" id="goalDate"></div>
+      <div style="margin-top:12px">
+        <label class="field">Zielgewicht (kg)
+          <input id="goalInput" type="number" min="1" max="500" step="0.1" placeholder="z. B. 70,0">
+        </label>
+        <button class="btn primary" id="saveGoal" style="margin-top:9px">Ziel speichern</button>
+      </div>
+    </section>
+
+    <section class="card span12">
+      <div class="sectionhead"><span>Verlauf</span><span class="muted" id="rangeMeta">Alle Messungen</span></div>
+      <div class="periods" id="periods">
+        <button class="period" data-period="7">1W</button>
+        <button class="period active" data-period="30">1M</button>
+        <button class="period" data-period="90">3M</button>
+        <button class="period" data-period="180">6M</button>
+        <button class="period" data-period="365">1J</button>
+        <button class="period" data-period="all">Alle</button>
+        <button class="period" data-period="custom">Zeitraum</button>
+      </div>
+      <div id="customDates" class="two" style="display:none;margin:0 0 14px">
+        <label class="field">Von<input type="date" id="fromDate"></label>
+        <label class="field">Bis<input type="date" id="toDate"></label>
+      </div>
+      <div class="chart-options">
+        <label for="axisStep">Achsenintervall</label>
+        <select id="axisStep" aria-label="Abstand zwischen den Achsenmarkierungen">
+          <option value="1">1 kg</option>
+          <option value="2" selected>2 kg</option>
+          <option value="5">5 kg</option>
+          <option value="10">10 kg</option>
+        </select>
+      </div>
+      <div class="chartwrap">
+        <svg id="chart" viewBox="0 0 760 250" role="img" aria-label="Gewichtsverlauf mit Messwerten und gleitendem 7-Tage-Durchschnitt"></svg>
+      </div>
+      <div class="chart-legend">
+        <span><i class="legend-dot"></i> Einzelmessung</span>
+        <span><i class="legend-line"></i> Gleitender 7-Tage-Durchschnitt</span>
+      </div>
+      <div class="chartlabels"><span id="startLabel">—</span><span id="endLabel">—</span></div>
+    </section>
+
+    <section class="card span12">
+      <div class="sectionhead"><span>∑ In diesem Zeitraum</span><span class="pill" id="statsPeriod">1 Monat</span></div>
+      <div class="statgrid">
+        <div class="stat"><label>〰 Trendänderung</label><strong id="statTrend">—</strong></div>
+        <div class="stat"><label>÷ Durchschnitt</label><strong id="statAvg">—</strong></div>
+        <div class="stat"><label>↓ Niedrigster</label><strong id="statMin">—</strong></div>
+        <div class="stat"><label>↑ Höchster</label><strong id="statMax">—</strong></div>
+        <div class="stat"><label>＃ Messungen</label><strong id="statCount">—</strong></div>
+        <div class="stat"><label>▦ Erfasste Tage</label><strong id="statDays">—</strong></div>
+      </div>
+      <p class="note">Trendänderung ist die Veränderung der berechneten Trendlinie über den gewählten Zeitraum. Die Änderungsrate oben wird separat aus dem linearen Trend der letzten 28 Tage geschätzt. Durchschnitt, Minimum und Maximum beziehen sich auf die tatsächlichen Messwerte.</p>
+    </section>
+
+    <section class="card span6">
+      <div class="sectionhead"><span>◉ Änderungsrate</span></div>
+      <div class="big" style="font-size:clamp(32px,4vw,48px)" id="rateDetail">—</div>
+      <div class="muted">Geschätzte Veränderung pro Woche auf Basis des linearen Trends der letzten 28 Tage.</div>
+      <div class="goaldate" id="forecastDetail"></div>
+      <p class="note">Eine Trendlinie glättet kurzfristige Schwankungen. Die Prognose schreibt den jüngsten Trend rechnerisch fort und ist eine grobe Orientierung, keine Zusage.</p>
+    </section>
+
+    <section class="card span6">
+      <div class="sectionhead"><span>＋ Gewicht eintragen</span><span class="pill">Geräteintern</span></div>
+      <form id="entryForm">
+        <div class="fields">
+          <label class="field">Datum und Uhrzeit<input id="entryDate" type="datetime-local" required></label>
+          <label class="field">Gewicht (kg)<input id="entryWeight" type="number" min="1" max="500" step="0.1" placeholder="z. B. 56,2" required></label>
+          <label class="field">Notiz (optional)<input id="entryNote" type="text" maxlength="120" placeholder="z. B. morgens"></label>
+        </div>
+        <button class="btn primary" type="submit">Messung speichern</button>
+      </form>
+      <p class="note">Daten werden nur in diesem Browser gespeichert. Exportiere regelmäßig eine Sicherung oder importiere eine vorhandene JSON-Sicherung.</p>
+    </section>
+
+    <section class="card span12">
+      <div class="sectionhead"><span>Letzte Messungen</span><span class="muted" id="entryCount">0 Einträge</span></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Datum</th><th>Gewicht</th><th>Notiz</th><th></th></tr></thead>
+          <tbody id="entriesBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">Lokaler Prototyp · keine Konten, keine Analytics, keine Serververbindung. Daten bleiben in diesem Browser auf diesem Gerät. Browserdaten löschen kann die Messwerte entfernen; nutze Export/Import für Backups und Übertragung.</div>
+</div>
+</main>
+
+<script type="module" src="./js/app.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(error => {
+        console.error("Service Worker konnte nicht registriert werden:", error);
+      });
+    });
+  }
+</script>
+</body>
+</html>
